@@ -1,0 +1,14 @@
+{
+  "listings_path": "data/listings.csv",
+  "signal_library_path": "data/signal_library.csv",
+  "training_labels_path": "data/training_labels.csv",
+  "rule_output_path": "outputs/scored_listings_rule.csv",
+  "review_candidates_output_path": "outputs/review_candidates.csv",
+  "hybrid_output_path": "outputs/scored_listings_hybrid.csv",
+  "model_output_path": "models/shippability_model.pkl",
+  "chunk_size": 50000,
+  "enable_ml_scoring": true,
+  "ml_confidence_threshold": 0.75,
+  "min_training_rows": 8
+}
+
