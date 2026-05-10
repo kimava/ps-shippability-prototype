@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import Dict, List, Tuple, Union
 
 import pandas as pd
 
@@ -39,10 +40,10 @@ def _match_signals(
     listing_category: str,
     signal_library: pd.DataFrame,
     config: ScoringConfig,
-) -> list[MatchedSignal]:
+) -> List[MatchedSignal]:
     category_signals = signal_library[signal_library["category"] == listing_category]
     normalized_text = _normalize_text(listing_text)
-    matches: list[MatchedSignal] = []
+    matches: List[MatchedSignal] = []
 
     for signal in category_signals.itertuples(index=False):
         pattern = _build_regex(signal.signal_term)
@@ -63,7 +64,7 @@ def _match_signals(
     return matches
 
 
-def _derive_decision(score: int, matches: list[MatchedSignal], config: ScoringConfig) -> tuple[str, str]:
+def _derive_decision(score: int, matches: List[MatchedSignal], config: ScoringConfig) -> Tuple[str, str]:
     has_strong_negative = any(match.signal_type == "strong_negative" for match in matches)
 
     if config.exclude_on_any_strong_negative and has_strong_negative:
@@ -78,7 +79,7 @@ def _derive_decision(score: int, matches: list[MatchedSignal], config: ScoringCo
 
 
 def score_listings(listings_df: pd.DataFrame, signal_library_df: pd.DataFrame, config: ScoringConfig) -> pd.DataFrame:
-    rows: list[dict[str, str | int]] = []
+    rows: List[Dict[str, Union[str, int]]] = []
 
     for listing in listings_df.itertuples(index=False):
         listing_text = f"{listing.title} {listing.description}"

@@ -1,14 +1,20 @@
 {
-  "listings_path": "data/listings.csv",
+  "input_listings_path": "data/listings.csv",
   "signal_library_path": "data/signal_library.csv",
   "training_labels_path": "data/training_labels.csv",
   "rule_output_path": "outputs/scored_listings_rule.csv",
+  "rule_only_output_path": "outputs/scored_listings_rule_only.csv",
   "review_candidates_output_path": "outputs/review_candidates.csv",
+  "l2_top_terms_output_path": "outputs/l2_top_terms.csv",
   "hybrid_output_path": "outputs/scored_listings_hybrid.csv",
+  "hybrid_lite_output_path": "outputs/scored_listings_hybrid_lite.csv",
+  "ml_review_labelling_output_path": "outputs/ml_review_labelling.csv",
   "model_output_path": "models/shippability_model.pkl",
   "chunk_size": 50000,
   "enable_ml_scoring": true,
   "ml_confidence_threshold": 0.75,
-  "min_training_rows": 8
+  "min_training_rows": 8,
+  "top_terms_per_l2": 25,
+  "min_term_frequency": 3
 }
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pickle
 from dataclasses import dataclass
-from pathlib import Path
+from typing import Optional
 
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -14,13 +14,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 
 from .config import AppConfig
+from .load_data import derive_internal_category
 
 ALLOWED_LABELS = {"Shippable", "Not Shippable", "Review"}
 
 
 def _build_text_features(df: pd.DataFrame) -> pd.Series:
     return (
-        df["category"].fillna("").astype(str)
+        derive_internal_category(df).fillna("").astype(str)
         + " "
         + df["title"].fillna("").astype(str)
         + " "
@@ -30,7 +31,7 @@ def _build_text_features(df: pd.DataFrame) -> pd.Series:
 
 @dataclass
 class MLScoringEngine:
-    model: Pipeline | None
+    model: Optional[Pipeline]
     enabled: bool
     reason_template: str = (
         "ML prediction based on TF-IDF text features from category, title and description."
@@ -74,7 +75,7 @@ def _print_evaluation_metrics(model: Pipeline, x_test: pd.Series, y_test: pd.Ser
     print("=== End Baseline ML Evaluation ===\n")
 
 
-def train_ml_model(training_df: pd.DataFrame | None, config: AppConfig) -> MLScoringEngine:
+def train_ml_model(training_df: Optional[pd.DataFrame], config: AppConfig) -> MLScoringEngine:
     if not config.enable_ml_scoring:
         print("ML scoring disabled by config.")
         return MLScoringEngine(model=None, enabled=False)

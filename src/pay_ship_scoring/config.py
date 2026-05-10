@@ -1,6 +1,7 @@
 """Configuration for rule-based listing scoring."""
 
 from dataclasses import dataclass, field
+from typing import Dict
 
 
 @dataclass(frozen=True)
@@ -8,7 +9,7 @@ class ScoringConfig:
     """Central scoring parameters, easy to tweak in one place."""
 
     base_score: int = 50
-    signal_weights: dict[str, int] = field(
+    signal_weights: Dict[str, int] = field(
         default_factory=lambda: {
             "strong_negative": -45,
             "strong_positive": 20,

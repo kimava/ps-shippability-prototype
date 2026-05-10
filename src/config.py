@@ -3,17 +3,22 @@
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Dict, Optional
 
 
 @dataclass(frozen=True)
 class AppConfig:
     # Paths
-    listings_path: Path = Path("data/listings.csv")
+    input_listings_path: Path = Path("data/listings.csv")
     signal_library_path: Path = Path("data/signal_library.csv")
     training_labels_path: Path = Path("data/training_labels.csv")
     rule_output_path: Path = Path("outputs/scored_listings_rule.csv")
+    rule_only_output_path: Path = Path("outputs/scored_listings_rule_only.csv")
     review_candidates_output_path: Path = Path("outputs/review_candidates.csv")
+    l2_top_terms_output_path: Path = Path("outputs/l2_top_terms.csv")
     hybrid_output_path: Path = Path("outputs/scored_listings_hybrid.csv")
+    hybrid_lite_output_path: Path = Path("outputs/scored_listings_hybrid_lite.csv")
+    ml_review_labelling_output_path: Path = Path("outputs/ml_review_labelling.csv")
     model_output_path: Path = Path("models/shippability_model.pkl")
 
     # Scale-related controls
@@ -23,10 +28,12 @@ class AppConfig:
     enable_ml_scoring: bool = True
     ml_confidence_threshold: float = 0.75
     min_training_rows: int = 8
+    top_terms_per_l2: int = 25
+    min_term_frequency: int = 3
 
     # Rule scoring controls
     base_score: int = 50
-    signal_weights: dict[str, int] = field(
+    signal_weights: Dict[str, int] = field(
         default_factory=lambda: {
             "strong_negative": -45,
             "strong_positive": 20,
@@ -41,7 +48,7 @@ class AppConfig:
     max_score: int = 100
 
 
-def load_app_config(config_json_path: Path | None = None) -> AppConfig:
+def load_app_config(config_json_path: Optional[Path] = None) -> AppConfig:
     """
     Load config from JSON if present, falling back to AppConfig defaults.
 
@@ -63,7 +70,12 @@ def load_app_config(config_json_path: Path | None = None) -> AppConfig:
     if not isinstance(raw_overrides, dict):
         raise ValueError("config.json must contain a JSON object.")
 
-    compatibility_keys = {"enable_llm_scoring", "llm_confidence_threshold", "output_path"}
+    compatibility_keys = {
+        "enable_llm_scoring",
+        "llm_confidence_threshold",
+        "output_path",
+        "listings_path",
+    }
     allowed_keys = set(AppConfig.__dataclass_fields__.keys()) | compatibility_keys
     unknown_keys = [key for key in raw_overrides if key not in allowed_keys]
     if unknown_keys:
@@ -78,15 +90,21 @@ def load_app_config(config_json_path: Path | None = None) -> AppConfig:
         merged_config["ml_confidence_threshold"] = float(raw_overrides["llm_confidence_threshold"])
     if "output_path" in raw_overrides and "hybrid_output_path" not in raw_overrides:
         merged_config["hybrid_output_path"] = raw_overrides["output_path"]
+    if "listings_path" in raw_overrides and "input_listings_path" not in raw_overrides:
+        merged_config["input_listings_path"] = raw_overrides["listings_path"]
 
     # Normalize path fields if set as strings in JSON.
     for path_field in [
-        "listings_path",
+        "input_listings_path",
         "signal_library_path",
         "training_labels_path",
         "rule_output_path",
+        "rule_only_output_path",
         "review_candidates_output_path",
+        "l2_top_terms_output_path",
         "hybrid_output_path",
+        "hybrid_lite_output_path",
+        "ml_review_labelling_output_path",
         "model_output_path",
     ]:
         value = merged_config[path_field]
